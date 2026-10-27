@@ -2,6 +2,19 @@
 
 所有对用户可见的变更集中在各版本号下。格式遵循 [Keep a Changelog](https://keepachangelog.com/)，版本语义遵循 [SemVer](http://semver.org/)。
 
+## [0.9.9] - 2026-10-27 — 交付卡片 / 人机交接等待
+
+### 新增
+- **截图与下载变成交付卡片（`deliver`，默认开）**：`ego_screenshot` / `ego_download` 成功后把文件追加为 `deliverables/presented` 会话事件（与 `present` 工具同一条路径），Web GUI 显示可点击的交付卡片、在侧栏打开，而不是让用户在聊天里复制 `/tmp/...` 路径。完全 best-effort：缺少投影服务、没有发起会话、或 append 抛错都不会让截图/下载变成失败调用；`deliver:false` 可关闭。
+- **`ego_wait_for_human`：人机验证 / 登录交接**：先在聊天里告诉用户要做什么，然后**阻塞轮询**页面，直到人机验证消失（可选 `selector` 作为“登录完成”信号），返回 `{needed, resolved, waitedMs, polls, detected, kind, url}`；超时返回 `resolved:false` 而不是报错。总时长 5–110 秒、轮询 250–10000ms 可调。刻意不走审批——`never` 策略下审批请求会被自动拒绝。
+
+### 测试
+- 新增 `tests/deliverables.test.ts`（8 项）：交付事件的形状、缺少会话/投影时的降级、append 抛错不影响工具调用、两个工具的接线。
+- 新增 `tests/wait-for-human.test.ts`（5 项）：轮询节奏、无 selector 时只看挑战、有 selector 时同时等它、结构化返回、标签选择前置。
+
+### 文档
+- `ego_help` 增加 `ego_wait_for_human` 与 captcha 主题说明。
+
 ## [0.9.8] - 2026-10-27 — 会话级任务空间
 
 ### 新增
